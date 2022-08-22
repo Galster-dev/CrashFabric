@@ -10,22 +10,18 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import ru.galster.crashfabric.ServerModInitializer;
 
 import java.util.function.Consumer;
 
 public class PreventEntityCrash {
     @Mixin(Level.class)
     public static class LevelMixin<T extends Entity> {
-        @Inject(method = "guardEntityTick", at = @At("HEAD"))
+        @Inject(method = "guardEntityTick", at = @At(value = "INVOKE_ASSIGN", target = "net/minecraft/CrashReport.forThrowable(Ljava/lang/Throwable;Ljava/lang/String;)Lnet/minecraft/CrashReport;"), cancellable = true)
         public void guardEntityTick(Consumer<T> consumer, T entity, CallbackInfo ci) {
-            try {
-                consumer.accept(entity);
-            } catch (Throwable throwable) {
-                final String msg = String.format("Entity threw exception at %s:%s,%s,%s", entity.level.dimension().location().toString(), entity.getX(), entity.getY(), entity.getZ());
-                ServerModInitializer.LOGGER.error(msg, throwable);
-                entity.discard();
-            }
+//            final String msg = String.format("Entity threw exception at %s:%s,%s,%s", entity.level.dimension().location().toString(), entity.getX(), entity.getY(), entity.getZ());
+//            ServerModInitializer.LOGGER.error(msg, throwable);
+            entity.discard();
+            ci.cancel();
         }
     }
 
