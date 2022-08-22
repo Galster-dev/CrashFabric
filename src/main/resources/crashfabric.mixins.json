@@ -9,7 +9,7 @@
     "DoublePlayerChunkMap$EntityMixin",
     "DoublePlayerChunkMap$EntityCallbacksMixin",
     "FixCocoaDecoratorGeneration$CocoaDecoratorMixin",
-    "LargeMoveVectors$ServerGamePacketListenerImplMixin",
+    "GuardEntityPosition$EntityMixin",
     "PreventEntityCrash$LevelChunkMixin",
     "PreventEntityCrash$LevelMixin",
     "accessors.ServerGamePacketListenerImplAccessor"
