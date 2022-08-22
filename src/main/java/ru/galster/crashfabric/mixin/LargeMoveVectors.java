@@ -30,6 +30,7 @@ import static ru.galster.crashfabric.ServerModInitializer.LOGGER;
 import static ru.galster.crashfabric.mixin.accessors.ServerGamePacketListenerImplAccessor.*;
 
 public class LargeMoveVectors {
+    @SuppressWarnings("DuplicatedCode")
     @Mixin(ServerGamePacketListenerImpl.class)
     public static abstract class ServerGamePacketListenerImplMixin {
         @Shadow public abstract void disconnect(Component component);
@@ -120,7 +121,12 @@ public class LargeMoveVectors {
                     double currDeltaX = toX - fromX;
                     double currDeltaY = toY - fromY;
                     double currDeltaZ = toZ - fromZ;
-                    double p = Math.max((l * l + m * m + n * n) - 1, (currDeltaX * currDeltaX + currDeltaY * currDeltaY + currDeltaZ * currDeltaZ) - 1);
+                    double p = Math.max(l * l + m * m + n * n, (currDeltaX * currDeltaX + currDeltaY * currDeltaY + currDeltaZ * currDeltaZ) - 1);
+
+                    double otherDeltaX = toX - this.vehicleLastGoodX;
+                    double otherDeltaY = toY - this.vehicleLastGoodY - 1.0E-6D;
+                    double otherDeltaZ = toZ - this.vehicleLastGoodZ;
+                    p = Math.max(p, (otherDeltaX * otherDeltaX + otherDeltaY * otherDeltaY + otherDeltaZ * otherDeltaZ) - 1);
 
                     if (p - o > 100.0 && !this.isSingleplayerOwner()) {
                         LOGGER.warn("{} (vehicle of {}) moved too quickly! {},{},{}", entity.getName().getString(), this.player.getName().getString(), l, m, n);
@@ -170,7 +176,7 @@ public class LargeMoveVectors {
 
         /**
          * @author Galster
-         * @reason CrashFabric - proper move check to prevent crashing
+         * @reason CrashFabric - Proper move check to prevent crashes
          */
         @Overwrite
         public void handleMovePlayer(ServerboundMovePlayerPacket serverboundMovePlayerPacket) {
@@ -192,28 +198,33 @@ public class LargeMoveVectors {
 
                     } else {
                         this.awaitingTeleportTime = this.tickCount;
-                        double d = clampHorizontal(serverboundMovePlayerPacket.getX(this.player.getX()));
-                        double e = clampVertical(serverboundMovePlayerPacket.getY(this.player.getY()));
-                        double f = clampHorizontal(serverboundMovePlayerPacket.getZ(this.player.getZ()));
+                        double toX = clampHorizontal(serverboundMovePlayerPacket.getX(this.player.getX()));
+                        double toY = clampVertical(serverboundMovePlayerPacket.getY(this.player.getY()));
+                        double toZ = clampHorizontal(serverboundMovePlayerPacket.getZ(this.player.getZ()));
                         float g = Mth.wrapDegrees(serverboundMovePlayerPacket.getYRot(this.player.getYRot()));
                         float h = Mth.wrapDegrees(serverboundMovePlayerPacket.getXRot(this.player.getXRot()));
                         if (this.player.isPassenger()) {
                             this.player.absMoveTo(this.player.getX(), this.player.getY(), this.player.getZ(), g, h);
                             this.player.getLevel().getChunkSource().move(this.player);
                         } else {
-                            double fromX = this.player.getX();
-                            double fromY = this.player.getY();
-                            double fromZ = this.player.getZ();
+                            double prevX = this.player.getX();
+                            double prevY = this.player.getY();
+                            double prevZ = this.player.getZ();
                             double l = this.player.getY();
-                            double toX = d - this.firstGoodX;
-                            double toY = e - this.firstGoodY;
-                            double toZ = f - this.firstGoodZ;
+                            double m = toX - this.firstGoodX;
+                            double n = toY - this.firstGoodY;
+                            double o = toZ - this.firstGoodZ;
                             double p = this.player.getDeltaMovement().lengthSqr();
 
-                            double currDeltaX = toX - fromX;
-                            double currDeltaY = toY - fromY;
-                            double currDeltaZ = toZ - fromZ;
-                            double q = Math.max((toX * toX + toY * toY + toZ * toZ) - 1, (currDeltaX * currDeltaX + currDeltaY * currDeltaY + currDeltaZ * currDeltaZ) - 1);
+                            double currDeltaX = toX - prevX;
+                            double currDeltaY = toY - prevY;
+                            double currDeltaZ = toZ - prevZ;
+                            double q = Math.max(m * m + n * n + o * o, (currDeltaX * currDeltaX + currDeltaY * currDeltaY + currDeltaZ * currDeltaZ) - 1);
+
+                            double otherDeltaX = toX - this.lastGoodX;
+                            double otherDeltaY = toY - this.lastGoodY;
+                            double otherDeltaZ = toZ - this.lastGoodZ;
+                            q = Math.max(q, (otherDeltaX * otherDeltaX + otherDeltaY * otherDeltaY + otherDeltaZ * otherDeltaZ) - 1);
 
                             if (this.player.isSleeping()) {
                                 if (q > 1.0) {
@@ -231,39 +242,39 @@ public class LargeMoveVectors {
                                 if (!this.player.isChangingDimension() && (!this.player.getLevel().getGameRules().getBoolean(GameRules.RULE_DISABLE_ELYTRA_MOVEMENT_CHECK) || !this.player.isFallFlying())) {
                                     float s = this.player.isFallFlying() ? 300.0F : 100.0F;
                                     if (q - p > (double)(s * (float)r) && !this.isSingleplayerOwner()) {
-                                        LOGGER.warn("{} moved too quickly! {},{},{}", this.player.getName().getString(), toX, toY, toZ);
+                                        LOGGER.warn("{} moved too quickly! {},{},{}", this.player.getName().getString(), m, n, o);
                                         this.teleport(this.player.getX(), this.player.getY(), this.player.getZ(), this.player.getYRot(), this.player.getXRot());
                                         return;
                                     }
                                 }
 
                                 AABB aABB = this.player.getBoundingBox();
-                                toX = d - this.lastGoodX;
-                                toY = e - this.lastGoodY;
-                                toZ = f - this.lastGoodZ;
-                                boolean bl = toY > 0.0;
+                                m = toX - this.lastGoodX;
+                                n = toY - this.lastGoodY;
+                                o = toZ - this.lastGoodZ;
+                                boolean bl = n > 0.0;
                                 if (this.player.isOnGround() && !serverboundMovePlayerPacket.isOnGround() && bl) {
                                     this.player.jumpFromGround();
                                 }
 
                                 boolean bl2 = this.player.verticalCollisionBelow;
-                                this.player.move(MoverType.PLAYER, new Vec3(toX, toY, toZ));
-                                double t = toY;
-                                toX = d - this.player.getX();
-                                toY = e - this.player.getY();
-                                if (toY > -0.5 || toY < 0.5) {
-                                    toY = 0.0;
+                                this.player.move(MoverType.PLAYER, new Vec3(m, n, o));
+                                double t = n;
+                                m = toX - this.player.getX();
+                                n = toY - this.player.getY();
+                                if (n > -0.5 || n < 0.5) {
+                                    n = 0.0;
                                 }
 
-                                toZ = f - this.player.getZ();
-                                q = toX * toX + toY * toY + toZ * toZ;
+                                o = toZ - this.player.getZ();
+                                q = m * m + n * n + o * o;
                                 boolean bl3 = false;
                                 if (!this.player.isChangingDimension() && q > 0.0625 && !this.player.isSleeping() && !this.player.gameMode.isCreative() && this.player.gameMode.getGameModeForPlayer() != GameType.SPECTATOR) {
                                     bl3 = true;
                                     LOGGER.warn("{} moved wrongly!", this.player.getName().getString());
                                 }
 
-                                this.player.absMoveTo(d, e, f, g, h);
+                                this.player.absMoveTo(toX, toY, toZ, g, h);
                                 if (this.player.noPhysics || this.player.isSleeping() || (!bl3 || !serverLevel.noCollision(this.player, aABB)) && !this.isPlayerCollidingWithAnythingNew(serverLevel, aABB)) {
                                     this.clientIsFloating = t >= -0.03125 && !bl2 && this.player.gameMode.getGameModeForPlayer() != GameType.SPECTATOR && !this.server.isFlightAllowed() && !this.player.getAbilities().mayfly && !this.player.hasEffect(MobEffects.LEVITATION) && !this.player.isFallFlying() && !this.player.isAutoSpinAttack() && this.noBlocksAround(this.player);
                                     this.player.getLevel().getChunkSource().move(this.player);
@@ -273,12 +284,12 @@ public class LargeMoveVectors {
                                         this.player.resetFallDistance();
                                     }
 
-                                    this.player.checkMovementStatistics(this.player.getX() - fromX, this.player.getY() - fromY, this.player.getZ() - fromZ);
+                                    this.player.checkMovementStatistics(this.player.getX() - prevX, this.player.getY() - prevY, this.player.getZ() - prevZ);
                                     this.lastGoodX = this.player.getX();
                                     this.lastGoodY = this.player.getY();
                                     this.lastGoodZ = this.player.getZ();
                                 } else {
-                                    this.teleport(fromX, fromY, fromZ, g, h);
+                                    this.teleport(prevX, prevY, prevZ, g, h);
                                 }
                             }
                         }

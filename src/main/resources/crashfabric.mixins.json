@@ -6,10 +6,11 @@
   "mixins": [
     "DontCrashOnPlayerRemove$DistanceManagerMixin",
     "DoublePlayerChunkMap$ChunkMapMixin",
-    "DoublePlayerChunkMap$EntityMixin",
     "DoublePlayerChunkMap$EntityCallbacksMixin",
+    "DoublePlayerChunkMap$EntityMixin",
     "FixCocoaDecoratorGeneration$CocoaDecoratorMixin",
     "GuardEntityPosition$EntityMixin",
+    "LargeMoveVectors$ServerGamePacketListenerImplMixin",
     "PacketLimiter$ConnectionMixin",
     "PreventEntityCrash$LevelChunkMixin",
     "PreventEntityCrash$LevelMixin",
