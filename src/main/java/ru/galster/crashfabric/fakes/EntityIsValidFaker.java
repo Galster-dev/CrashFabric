@@ -1,4 +1,4 @@
-package ru.galster.crashfabric.mixin.fakes;
+package ru.galster.crashfabric.fakes;
 
 public interface EntityIsValidFaker {
     boolean isValid();

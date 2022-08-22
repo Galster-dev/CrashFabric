@@ -4,6 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.LevelChunk;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -36,12 +37,15 @@ public class PreventEntityCrash {
     public static abstract class LevelChunkMixin {
         @Shadow public abstract BlockPos getPos();
 
+        @Final
+        @Shadow
+        LevelChunk field_27223;
+
         @Inject(method = "tick", at = @At(value = "INVOKE_ASSIGN", target = "Lnet/minecraft/CrashReport;forThrowable(Ljava/lang/Throwable;Ljava/lang/String;)Lnet/minecraft/CrashReport;"), cancellable = true)
         public void tick(CallbackInfo ci) {
-            @SuppressWarnings("ConstantConditions") var thisChunk = (LevelChunk) (Object) this;
 //            final String msg = String.format("BlockEntity threw exception at %s:%s,%s,%s", thisChunk.getLevel().dimension().location().toString(), this.getPos().getX(), this.getPos().getY(), this.getPos().getZ());
 //            ServerModInitializer.LOGGER.error(msg, throwable);
-            thisChunk.removeBlockEntity(this.getPos());
+            this.field_27223.removeBlockEntity(this.getPos());
             ci.cancel();
         }
     }

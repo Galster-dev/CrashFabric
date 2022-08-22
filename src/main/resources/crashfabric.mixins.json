@@ -7,12 +7,12 @@
     "DontCrashOnPlayerRemove$DistanceManagerMixin",
     "DoublePlayerChunkMap$ChunkMapMixin",
     "DoublePlayerChunkMap$EntityMixin",
-    "DoublePlayerChunkMap$ServerLevelMixin",
+    "DoublePlayerChunkMap$EntityCallbacksMixin",
     "FixCocoaDecoratorGeneration$CocoaDecoratorMixin",
     "LargeMoveVectors$ServerGamePacketListenerImplMixin",
     "PreventEntityCrash$LevelChunkMixin",
     "PreventEntityCrash$LevelMixin",
-    "fakes.ServerGamePacketListenerImplAccessor"
+    "accessors.ServerGamePacketListenerImplAccessor"
   ],
   "client": [
   ],

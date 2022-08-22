@@ -27,7 +27,7 @@ import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 
 import static ru.galster.crashfabric.ServerModInitializer.LOGGER;
-import static ru.galster.crashfabric.mixin.fakes.ServerGamePacketListenerImplAccessor.*;
+import static ru.galster.crashfabric.mixin.accessors.ServerGamePacketListenerImplAccessor.*;
 
 public class LargeMoveVectors {
     @Mixin(ServerGamePacketListenerImpl.class)

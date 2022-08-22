@@ -1,4 +1,4 @@
-package ru.galster.crashfabric.mixin.fakes;
+package ru.galster.crashfabric.mixin.accessors;
 
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import org.spongepowered.asm.mixin.Mixin;
