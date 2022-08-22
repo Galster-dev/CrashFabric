@@ -50,6 +50,10 @@ jar {
     }
 }
 
+loom {
+    accessWidenerPath = file("src/main/resources/crashfabric.accesswidener")
+}
+
 // configure the maven publication
 publishing {
     publications {

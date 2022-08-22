@@ -15,14 +15,13 @@ public class DontCrashOnPlayerRemove {
     public static abstract class DistanceManagerMixin {
         @Shadow @Final
         Long2ObjectMap<ObjectSet<ServerPlayer>> playersPerChunk;
-
-        @Shadow @Final private ChunkTracker naturalSpawnChunkCounter;
-
-        @Shadow @Final private ChunkTracker playerTicketManager;
-
         @Shadow @Final private TickingTracker tickingTicketsTracker;
 
         @Shadow protected abstract int getPlayerTicketLevel();
+
+        @Shadow @Final private DistanceManager.FixedPlayerDistanceChunkTracker naturalSpawnChunkCounter;
+
+        @Shadow @Final private DistanceManager.PlayerTicketTracker playerTicketManager;
 
         /**
          * @author Gaslter
