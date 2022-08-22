@@ -10,6 +10,7 @@
     "DoublePlayerChunkMap$EntityCallbacksMixin",
     "FixCocoaDecoratorGeneration$CocoaDecoratorMixin",
     "GuardEntityPosition$EntityMixin",
+    "PacketLimiter$ConnectionMixin",
     "PreventEntityCrash$LevelChunkMixin",
     "PreventEntityCrash$LevelMixin",
     "accessors.ServerGamePacketListenerImplAccessor"
