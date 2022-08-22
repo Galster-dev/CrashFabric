@@ -13,6 +13,9 @@
     "PacketLimiter$ConnectionMixin",
     "PreventEntityCrash$LevelChunkMixin",
     "PreventEntityCrash$LevelMixin",
+    "PreventInvalidSequenceCrash$ConnectionProtocolMixin",
+    "PreventInvalidSequenceCrash$PacketUtilsMixin",
+    "PreventInvalidSequenceCrash$Varint21FrameDecoderMixin",
     "accessors.ServerGamePacketListenerImplAccessor"
   ],
   "client": [
