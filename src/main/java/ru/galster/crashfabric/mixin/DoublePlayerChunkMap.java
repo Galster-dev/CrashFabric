@@ -4,7 +4,10 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
-import org.spongepowered.asm.mixin.*;
+import org.spongepowered.asm.mixin.Final;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -21,7 +24,7 @@ public class DoublePlayerChunkMap {
         @Inject(method = "addEntity", at = @At("HEAD"), cancellable = true)
         public void addEntity(Entity entity, CallbackInfo ci) {
             if(!((EntityIsValidFaker) entity).isValid() || !entity.level.equals(this.level) || this.entityMap.containsKey(entity.getId())) {
-                new Throwable("[ERROR] Illegal PlayerChunkMap::addEntity for world " + this.level.dimension().toString()
+                new Throwable("[ERROR] Illegal PlayerChunkMap::addEntity for world " + this.level.dimension().location().toString()
                         + ": " + entity  + (this.entityMap.containsKey(entity.getId()) ? " ALREADY CONTAINED (This would have crashed your server)" : ""))
                         .printStackTrace();
 
@@ -32,14 +35,10 @@ public class DoublePlayerChunkMap {
 
     @Mixin(targets = "net.minecraft.server.level.ServerLevel$EntityCallbacks")
     public static class EntityCallbacksMixin {
-        @Final
-        @Shadow
-        ServerLevel field_26936;
 
-        @Inject(method = "onTrackingStart(Lnet/minecraft/world/entity/Entity;)V", at = @At("TAIL"))
+        @Inject(method = "onTrackingStart(Lnet/minecraft/world/entity/Entity;)V", at = @At("HEAD"))
         public void onTrackingStart(Entity entity, CallbackInfo ci) {
             ((EntityIsValidFaker) entity).setValid(true);
-            this.field_26936.getChunkSource().addEntity(entity);
         }
 
         @Inject(method = "onTrackingEnd(Lnet/minecraft/world/entity/Entity;)V", at = @At("TAIL"))
